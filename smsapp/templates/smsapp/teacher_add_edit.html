@@ -1,0 +1,47 @@
+{% extends 'smsapp/base.html' %}
+{% load crispy_forms_tags %}
+
+<!-- page specific css -->
+{% block stylesheets %}
+{% endblock %}
+
+
+{% block main_content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Add New Teacher</h4>
+            </div>
+            <div class="card-body">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row-form-group">
+                            <div class="col-md-8 offset-md-2">
+                                {{ form.name|as_crispy_field}}
+                            </div>
+                            <div class="col-md-8 offset-md-2">
+                                {{ form.roles|as_crispy_field}}
+                            </div>
+                            <div class="col-md-8 offset-md-2">
+                                {{ form.teaching_subjects|as_crispy_field}}
+                            </div>
+                        </div>
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary float-right"> Submit</button>
+            </div>
+                    </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+{% block messages %}
+{% endblock %}
+
+<!-- page specific js -->
+{% block javascript %}
+{% endblock %}

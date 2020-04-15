@@ -1,0 +1,51 @@
+{% extends 'smsapp/base.html' %}
+
+
+<!-- page specific css -->
+{% block stylesheets %}
+
+{% endblock %}
+
+{% block main_content %}
+
+<div class="row">
+    <a class="btn btn-primary" href="/section_add_edit/"> Add Section </a>
+    <a class="btn btn-secondary" href="/section_view/"> View Section </a>
+</div>
+<br>
+<br>
+<div class="row">
+    <a class="btn btn-primary" href="/subject_add_edit/"> Add Subject </a>
+    <a class="btn btn-secondary" href="/subject_view/"> View Subject </a>
+</div>
+
+<div class="row">
+    <a class="btn btn-primary" href="/class_setup_add_edit/"> Add ClassSetup </a>
+    <a class="btn btn-secondary" href="/class_setup_view/"> View ClassSetup </a>
+</div>
+<br>
+<div class="row">
+    <a class="btn btn-primary" href="/teacher_add_edit/"> Add Teacher </a>
+    <a class="btn btn-secondary" href="/teacher_view/"> View Teacher </a>
+</div>
+<br>
+<div class="row">
+    <a class="btn btn-primary" href="/student_add_edit/"> Add Student </a>
+    <a class="btn btn-secondary" href="/student_view/"> View Student </a>
+</div>
+
+
+
+<h1>Class Summary</h1>
+<div class="row">
+    <a class="btn btn-primary" href="/class_summary/"> Class Summary </a>
+</div>
+
+
+
+<!-- page specific js -->
+{% block javascript %}
+
+{% endblock %}
+
+{% endblock %}
