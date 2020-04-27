@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from . import views
+from .views import SectionView, SectionDelete
 
 urlpatterns = [
 
@@ -23,14 +24,20 @@ urlpatterns = [
     path( 'dropdown_subject_class_setup/', views.dropdown_subject_class_setup, name='dropdown_subject_class_setup' ),
     path( 'dropdown_teacher_class_setup/', views.dropdown_teacher_class_setup, name='dropdown_teacher_class_setup' ),
 
+    path( 'class_setup_add_edit_new/', views.class_setup_add_edit_new, name='class_setup_add_edit_new' ),
+    path( 'class_setup_update_new/<int:id>', views.class_setup_add_edit_new, name='class_setup_update_new' ),
+    #class_Summary
+    path( 'class_summary/', views.class_summary, name='class_summary' ),
+
 
 
 
     # For SubjectCombination Model
-    path( 'section_add_edit/', views.section_add_edit, name='section_add_edit' ),
-    path( 'section_view/', views.section_view, name='section_view' ),
+    #path( 'section_add_edit/', views.section_add_edit, name='section_add_edit' ),
+    path( 'section_add/', views.section_add, name='section_add' ),
+    path( 'section_view/', SectionView.as_view(), name='section_view' ),
     path( 'section_update/<int:id>', views.section_add_edit, name='section_update' ),
-    path( 'section_delete/<int:id>', views.section_delete, name='section_delete' ),
+    path( 'section_delete/<int:pk>', SectionDelete.as_view(), name='section_delete' ),
 
     # For Teacher Model
     path( 'teacher_add_edit/', views.teacher_add_edit, name='teacher_add_edit' ),
@@ -54,9 +61,6 @@ urlpatterns = [
 
 
 
-    #class_Summary
-    path( 'class_summary/', views.class_summary, name='class_summary' ),
-
-
+    
 
 ]

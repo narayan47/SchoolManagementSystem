@@ -13,7 +13,7 @@
                 <h2>Section   <b>Management</b></h2>
             </div>
             <div class="col-sm-7">
-                <a href="/section_add_edit/" class="btn btn-primary"><i class="fas fa-plus-circle"></i> <span>Add Class Section Combination</span></a>
+                <a href="/section_add/" class="btn btn-primary"><i class="fas fa-plus-circle"></i> <span>Add Section</span></a>
                 <a href="#" class="btn btn-primary"><i class="fas fa-file-excel"></i><span>Export to Excel</ <span></a>
             </div>
         </div>
@@ -21,18 +21,19 @@
     <table class="table table-striped table-hover">
         <thead>
             <tr>
-                {% for verbose_name in verbose_names %}
-                <th>{{verbose_name}}</th>
-                {% endfor %}
-                <th>Action</th>
+
+                <th>ID</th>
+                <th>Class</th>
+                <th>Section</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-        {% for item in view_list %}
+        {% for item in object_list %}
             <tr>
                 <td>{{ item.id }}</td>
-                <td>{{ item.standard_name }}</td>
-                <td>{{ item.name }}</td>
+                <td>{{ item.names }}</td>
+                <td>{{ item.get_sections }}</td>
                 <td>
                     <a href="{% url 'smsapp:section_update' item.id%}" class="edit" title="Edit" data-toggle="tooltip"><i class="fas fa-edit"></i></a>
                     <a href="{% url 'smsapp:section_delete' item.id%}" class="delete" title="Delete" data-toggle="tooltip"><i class="fas fa-trash"></i></a>

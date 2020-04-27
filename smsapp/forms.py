@@ -1,6 +1,6 @@
 from django import forms
 from .models import*
-
+from django.forms import modelformset_factory, inlineformset_factory, formset_factory
 
 class ClassSetupForm(forms.ModelForm ):
     class Meta:
@@ -14,13 +14,6 @@ class ClassSetupForm(forms.ModelForm ):
         self.fields['section_name'].queryset = Section.objects.none()
         self.fields['subject_name'].queryset = Subject.objects.none()
         self.fields['class_teacher'].queryset = Teacher.objects.none()
-
-
-        
-        print('I am here in form')
-
-
-
 
         if 'class_name' in self.data and 'subject_name' in self.data:
             
@@ -48,16 +41,50 @@ class ClassSetupForm(forms.ModelForm ):
            pass
 
 
-
-
-class SectionForm( forms.ModelForm ):
+class ClassSetupFormNew(forms.ModelForm ):
     class Meta:
-        model = Section
+        model = ClassSetup
         fields = '__all__'
 
+    
+
     def __init__(self, *args, **kwargs):
-        super( SectionForm, self ).__init__( *args, **kwargs )
-        self.fields['standard_name'].empty_label = 'Select class'
+        super().__init__( *args, **kwargs )
+        
+        self.fields['section_name'].queryset = Section.objects.none()
+        self.fields['subject_name'].queryset = Subject.objects.none()
+
+        if 'class_name' in self.data:
+            
+            try:
+                class_name_id = int( self.data.get( 'class_name' ) )
+                self.fields['section_name'].queryset = Section.objects.filter(standard_name_id=class_name_id )
+                self.fields['subject_name'].queryset = Subject.objects.filter(class_name_id=class_name_id )
+            except (ValueError, TypeError):
+                pass
+        elif self.instance.pk:
+            pass
+        else:
+           pass
+ClassSetupFormset = formset_factory(ClassSetupFormNew)
+
+
+class StandardForm(forms.ModelForm):
+    class Meta:
+        model = Standard
+        fields = ('names',)
+
+
+SectionFormset = modelformset_factory(
+    Section,
+    fields=('name',),
+    extra=1,
+    widgets={'name': forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Enter Section Name here'
+    })
+    }
+)
 
 
 class TeacherForm( forms.ModelForm ):

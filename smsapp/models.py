@@ -45,19 +45,33 @@ class Subject( models.Model ):
         return str( self.name )
 
 
-class Standard( models.Model ):
-    names = models.CharField(choices=CLASS_CHOICES, max_length=20, verbose_name='Class Name' )
+class Standard(models.Model):  # standard
+
+    names = models.CharField(max_length=255,choices=CLASS_CHOICES)
+
+    class Meta:
+        db_table = 'standard'
 
     def __str__(self):
-        return str( self.names )
+        return self.names
+
+    def get_sections(self):
+        return ', '.join(self.sections.all().values_list('name', flat=True))
 
 
-class Section( models.Model ):
-    standard_name = models.ForeignKey(Standard, max_length=20, on_delete=models.CASCADE, verbose_name='Class Name' )
-    name = models.CharField(max_length=20, verbose_name='Section Name' )
+class Section(models.Model):  # section
+
+    name = models.CharField(max_length=255, verbose_name='Section Name')
+    standard_name = models.ForeignKey(
+        Standard,
+        related_name='sections', on_delete=models.CASCADE,
+        null=True)
+
+    class Meta:
+        db_table = 'section'
 
     def __str__(self):
-        return str( self.name )
+        return self.name
 
 
 class ClassSetup( models.Model ):
@@ -66,6 +80,8 @@ class ClassSetup( models.Model ):
     subject_name    = models.ForeignKey(Subject, on_delete=models.SET_NULL, null=True, verbose_name='Subject Name' ) 
 
     class_teacher   = models.ForeignKey('Teacher', on_delete=models.CASCADE, blank=True, verbose_name='Teacher' )
+
+   
 
     def __str__(self):
         return str( self.section_name )

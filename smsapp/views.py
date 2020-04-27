@@ -1,12 +1,29 @@
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.contrib import messages
 from django.shortcuts import render, redirect
 import re
 from .forms import*
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+
+
+
 
 from .models import*
 
 
 app_name = 'smsapp'
+
+
+
+class SectionView(ListView):
+    model = Standard
+    context_object_name = 'sections'
+    template_name = 'smsapp/section_view.html'
+
+
+class SectionDelete(DeleteView):
+    model = Standard
+
 
 
 def get_verbose_name(model_name):
@@ -94,7 +111,7 @@ def section_add_edit(request, id=0):
             obj = Section.objects.get( pk=id )
             form = SectionForm( instance=obj )
         return render( request,
-                       'smsapp/section_add_edit.html',
+                       'smsapp/section_add.html',
                        {"form": form} )
     else:
         if id == 0:
@@ -108,30 +125,39 @@ def section_add_edit(request, id=0):
         return redirect( 'smsapp:section_view' )
 
 
-def section_view(request):
-    class_name, lower_class_name = get_class_name( Section )
+def section_add(request):
+    template_name = 'smsapp/section_add.html'
+    if request.method == 'GET':
+        form = StandardForm(request.GET or None)
+        formset = SectionFormset(queryset=Section.objects.none())
+    elif request.method == 'POST':
+        form = StandardForm(request.POST)
+        formset = SectionFormset(request.POST)
+        if form.is_valid() and formset.is_valid():
+            # first save this book, as its reference will be used in `Author`
+            standard = form.save()
+            for f in formset:
+                print(f)
+                print('i')
+                # so that `book` instance can be attached.
+                section = f.save(commit=False)
+                section.standard_name = standard
+                section.save()
+            return redirect('smsapp:section_view')
 
-    verbose_name = get_verbose_name( Section )
-
-    field_names = get_class_fields( Section )
-    # print(field_names)
-
-    view_list = Section.objects.all()
-
-    context = {'view_list': view_list,
-               'verbose_names': verbose_name,
-               'class_name': class_name,
-               'lower_class_name': lower_class_name
-               }
-    return render( request, 'smsapp/section_view.html',
-                   context )
+    return render(request, template_name, {
+        'form': form,
+        'formset': formset,
+    })
 
 
-def section_delete(request, id):
-    obj = Section.objects.get( pk=id )
-    obj.delete()
-    messages.warning( request, "Data Deleted Successfully!" )
-    return redirect( 'smsapp:section_view' )
+
+
+# def section_delete(request, id):
+#     obj = Section.objects.get( pk=id )
+#     obj.delete()
+#     messages.warning( request, "Data Deleted Successfully!" )
+#     return redirect( 'smsapp:section_view' )
 
 
 #  CRUD Operation Teacher Model
@@ -280,6 +306,46 @@ def subject_delete(request, id):
     return redirect( 'smsapp:subject_view' )
 
 
+@csrf_exempt
+def class_setup_add_edit_new(request, id=0):
+    #tasks = request.POST.getlist('tasks')
+    #print(tasks)
+    if request.method == "GET":
+        if id == 0:
+            form = ClassSetupFormNew()
+        else:
+            obj = ClassSetup.objects.get( pk=id )
+            form = ClassSetupFormNew( instance=obj )
+            #print(form.teacher_name)
+        return render( request, 'smsapp/class_setup_add_edit_new.html',
+                       {"form": form} )
+    else:
+        if id == 0:
+            #form = ClassSetupFormNew(request.POST )
+            form = ClassSetupFormset(request.POST)
+
+           
+        else:
+            obj = ClassSetup.objects.get( pk=id )
+            #form = ClassSetupFormNew( request.POST, instance=obj )
+
+        
+        if form.is_valid():
+            for f in form:
+                print(f.cleaned_data)
+            #print(form.is_valid())
+                print('I am going to save multiple data')
+            #print(form.cleaned_data)
+            form.save()
+            messages.info( request, "Data saved Sucessfully in newclass setup !" )
+        else:
+            messages.warning( request, "Data is not saved in newclass setup!" )
+        return redirect( 'smsapp:class_summary' )
+
+
+
+
+
 
 def class_summary(request):
     verbose_names = get_verbose_name( ClassSetup )
@@ -295,8 +361,8 @@ def class_summary(request):
 
     section_list= [get_section_list(id = item) for item in class_id]
     
-    print(class_list)
-    print(section_list)
+    #print(class_list)
+    #print(section_list)
 
     # context = {'view_list': ClassSetup.objects.all(),'verbose_names': verbose_names}
     context = {'view_list': ClassSetup.objects.all(),
@@ -316,24 +382,17 @@ def class_summary(request):
 # for drop down selection
 def dropdown_section_class_setup(request):
     class_name_id = request.GET.get('class_name' )
-    #print("i am from", class_name_id)
-    forms = Section.objects.filter(standard_name_id=class_name_id )
-    #print(forms)
 
-    #for var in forms:
-        #print(var.name)
+    forms = Section.objects.filter(standard_name_id=class_name_id )
 
     return render( request, 'smsapp/section_dropdown_class_setup.html', {'forms': forms})
 
 
+@csrf_exempt
 def dropdown_subject_class_setup(request):
     class_name_id = request.GET.get('class_name' )
-    #print("i am from", class_name_id)
     forms = Subject.objects.filter(class_name_id=class_name_id )
-    #print(forms)
 
-    #for var in forms:
-        #print(var.name)
 
     return render( request, 'smsapp/subject_dropdown_class_setup.html', {'forms': forms})
 
@@ -341,12 +400,8 @@ def dropdown_subject_class_setup(request):
 
 def dropdown_teacher_class_setup(request):
     subject_name_id = request.GET.get('subject_name' )
-    #print(subject_name_id +'        is selected Subject ID kaskasfjkkfsajfkasjfkjasfjk')
     forms = Teacher.objects.filter(teaching_subjects=subject_name_id )
-    # print(forms)
 
-    # for var in forms:
-    #     print(var.name)
 
     return render( request, 'smsapp/teacher_dropdown_class_setup.html', {'forms': forms})
 

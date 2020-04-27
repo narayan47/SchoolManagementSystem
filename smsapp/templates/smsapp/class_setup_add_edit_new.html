@@ -1,0 +1,224 @@
+{% extends 'smsapp/base.html' %}
+{% load crispy_forms_tags %}
+{{ form.media }}
+{% load widget_tweaks %}
+<!-- page specific css -->
+{% block stylesheets %}
+{% endblock %}
+
+
+{% block main_content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Add New Class</h4>
+            </div>
+            <div class="card-body">
+
+                <form action="" method="post" id="ID" 
+                section_list="{% url 'smsapp:dropdown_section_class_setup' %}"
+                subject_list="{% url 'smsapp:dropdown_subject_class_setup' %}"
+                save_list="{% url 'smsapp:class_setup_add_edit_new' %}"
+                enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form.management_form }}
+                        <div class="row-form-group">
+                            <div class="col-md-8 offset-md-2">
+                              <div class="row">
+                                <div class="col">
+                                  <label for="class_name">Select Class* </label>
+                                  {% render_field form.class_name name="class_name" class="form-control" %}
+                                </div>
+                                <div class="col">
+                                  <label for="sectionSelect">Select Section* </label>
+                                  {% render_field form.section_name  name="section_name" class="form-control" %}
+                                </div>
+                              </div>                               
+                            </div>                        
+                           <br>
+                           <div class="col-md-8 offset-md-2">
+                              <div class="row">
+                                  <div class="col">
+                                    {% render_field form.subject_name name="subject_name" class="form-control btn btn-primary" %}
+                                  </div>
+                                  <div class="col">
+                                    {% render_field form.class_teacher name="class_teacher" class="form-control btn btn-primary" %}
+                                  </div>
+                                  <div class="col">
+                                    <input type="button" class="add-row form control btn btn-success" value="Add Row">
+                                  </div>
+                              </div>                               
+                            </div>
+                          <br> 
+                            <div class="col-md-8 offset-md-2">
+                            <table id="dataTable" class="table table-hover table-dark" >
+                                <thead>
+                                    <tr>
+                                      <th>
+                                        <input type="checkbox" id="uncheck" onClick="toggle(this)" />&nbsp;&nbsp;Select All<br/>
+                                        </th>
+                                        <th>Subject</th>
+                                        <th>Teacher</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                 </tbody>
+                            </table>
+                          </div>
+                        <div class="col-md-8 offset-md-2">
+                          <button type="button" class="delete-row btn btn-danger">Delete Row</button>
+                        </div>
+                       <br>
+            <div class="card-footer">
+                <button type="submit" class="save-data btn btn-primary float-right"> Submit</button>
+            </div>
+                </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- page specific js -->
+{% block javascript %}
+<script>
+$("#id_class_name").change(function () {
+      var myurl = $("#ID").attr("section_list");
+      var ClickedItemId = $(this).val();
+
+      $.ajax({
+        url: myurl,
+        data: {
+          'class_name': ClickedItemId
+        },
+        success: function (data) {
+          $("#id_section_name").html(data);
+        }
+      });
+
+    });
+
+
+    $("#id_class_name").change(function () {
+      var myurl = $("#ID").attr("subject_list");
+      var ClickedItemId = $(this).val();
+
+      $.ajax({
+        url: myurl,
+        data: {
+          'class_name': ClickedItemId
+        },
+        success: function (data) {
+          $("#id_subject_name").html(data);
+        }
+      });
+
+    });
+
+$(document).ready(function()
+    {
+        $(".add-row").click(function()
+        {
+            // var selected_subject_name = document.getElementById("id_subject_name");
+            // var subject_value= selected_subject_name.options[selected_subject_name.selectedIndex].text;
+           
+            var subject_value = $("#id_subject_name option:selected").text();
+
+            var class_teacher_value = $(" #id_class_teacher option:selected").text();
+
+            var markup = "<tr><td><input type='checkbox' name='record'></td><td>"
+                          + subject_value + "</td><td>" 
+                          + class_teacher_value 
+                          + "</td></tr>";
+            $("table tbody").append(markup);
+        });
+        
+        // Find and remove selected table rows
+        $(".delete-row").click(function()
+        {
+            $("table tbody").find('input[name="record"]').each(function()
+            {
+                if($(this).is(":checked"))
+                {
+                    $(this).parents("tr").remove();
+                    $( "#uncheck" ).prop( "checked", false );
+                }
+            });
+        });
+
+    });
+
+    function toggle(source)
+      {
+        checkboxes = document.getElementsByName('record');
+        for(var i=0, n=checkboxes.length;i<n;i++)
+          {
+            checkboxes[i].checked = source.checked;
+          }
+      
+      }
+
+
+function getData() 
+{
+
+  var table = document.getElementById('dataTable');
+  var data = [];
+  for (l = 1; l < table.rows[0].cells.length; l++) 
+  {
+      data.push({
+          items: [],
+          name: "ColumnNumber" + l
+      });
+  }
+
+  for (i = 1; i < table.rows.length; i++) {
+      var cells = table.rows[i].cells;
+      var x = 0;
+      for (c = 1; c < cells.length; c++) {
+          var inputElem = cells[c].textContent;
+          data[x].items.push(inputElem);
+          x++;
+      }
+  }
+  //printData(data);
+  return data;
+}
+
+// function printData(data) {
+// for (i = 0; i < data.length; i++) {
+//     for (k = 0; k < data[i].items.length; k++) {
+//         console.log(data[i].items[k][k]);
+//     }
+//   } 
+// }
+
+//document.addEventListener("DOMContentLoaded", getData(), false);
+
+  $("#ID").on('submit', function(e)
+  { 
+    
+    var myurl = $("#ID").attr("save_list");
+    var tasks = getData();
+    $.ajax({
+
+      type: "POST", 
+      url: myurl,
+      data: {'tasks': JSON.stringify(tasks) },
+      success: function(result) {
+         alert('Data Has been saved')
+     }
+    })
+    .done(function(response){
+      console.log(response);
+    })
+    .fail(function(response){
+      console.log("Error occured");
+      console.log(data)
+    });
+  });
+  </script>
+{% endblock %}
+
